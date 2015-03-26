@@ -10,6 +10,12 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
+    <EditText
+        android:id="@+id/txtIPAddress"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:hint="IP Address"
+    />
     <Button
         android:id="@+id/btnAdd"
         android:layout_width="match_parent"
@@ -17,6 +23,20 @@
         android:text="Add"
         android:onClick="btnAddText"
     />
+        <Button
+            android:id="@+id/btnReplace"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:text="Replace"
+            android:onClick="btnReplaceText"
+            />
+        <Button
+            android:id="@+id/btnClear"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:text="Clear"
+            android:onClick="btnClearText"
+            />
     </LinearLayout>
 
 </RelativeLayout>

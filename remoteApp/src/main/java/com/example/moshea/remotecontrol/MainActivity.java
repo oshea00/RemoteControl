@@ -1,14 +1,19 @@
 package com.example.moshea.remotecontrol;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
@@ -32,7 +37,20 @@ public class MainActivity extends ActionBarActivity {
 
     public void btnAddText(View view)
     {
-        new Messenger().execute("");
+         EditText ip = (EditText) findViewById(R.id.txtIPAddress);
+         new Messenger().execute("Add",ip.getText().toString());
+    }
+
+    public void btnReplaceText(View view)
+    {
+        EditText ip = (EditText) findViewById(R.id.txtIPAddress);
+        new Messenger().execute("Replace",ip.getText().toString());
+    }
+
+    public void btnClearText(View view)
+    {
+        EditText ip = (EditText) findViewById(R.id.txtIPAddress);
+        new Messenger().execute("Clear",ip.getText().toString());
     }
 
     @Override
@@ -69,6 +87,34 @@ public class MainActivity extends ActionBarActivity {
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_main, container, false);
+
+            final EditText txtIPAddress = (EditText) rootView.findViewById(R.id.txtIPAddress);
+
+            SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+            String ip = sharedPref.getString("IP",null);
+
+            if (ip != null)
+            {
+                txtIPAddress.setText(ip);
+            }
+
+            txtIPAddress.addTextChangedListener(new TextWatcher()
+            {
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                }
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                }
+                @Override
+                public void afterTextChanged(Editable s) {
+                    SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+                    SharedPreferences.Editor editor = sharedPref.edit();
+                    editor.putString("IP", s.toString());
+                    editor.commit();
+                }
+            });
+
             return rootView;
         }
 
@@ -83,11 +129,11 @@ public class MainActivity extends ActionBarActivity {
             try
             {
                 ConnectionFactory factory = new ConnectionFactory();
-                factory.setHost("10.0.161.63");
+                factory.setHost(params[1]);
                 Connection connection = factory.newConnection();
                 Channel channel = connection.createChannel();
                 channel.queueDeclare("RemoteControl", false, false, false, null);
-                String message = "Add";
+                String message = params[0];
                 channel.basicPublish("", "RemoteControl", null, message.getBytes());
                 channel.close();
                 connection.close();
